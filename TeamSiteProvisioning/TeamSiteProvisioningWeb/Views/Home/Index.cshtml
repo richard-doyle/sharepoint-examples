@@ -1,0 +1,17 @@
+﻿@model TeamSiteProvisioningWeb.Models.SiteDetails
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<h2>Provision a new Team Site</h2>
+
+@using (Html.BeginForm())
+{
+    <fieldset>
+        @Html.LabelFor(m => m.Title)
+        @Html.TextBoxFor(m => m.Title)
+
+        <input type="submit" value="Add New Site" />
+    </fieldset>
+}
