@@ -51,7 +51,7 @@ namespace TeamSiteProvisioningWeb.Helpers
                     Url = webUrl,
                     Owner = "rdoyle@rdoyle.onmicrosoft.com",
                     Title = siteDetails.Title,
-                    //Template = "Team Site",
+                    Template = "STS#0",
                     StorageMaximumLevel = 100,
                     UserCodeMaximumLevel = 100
                 };
