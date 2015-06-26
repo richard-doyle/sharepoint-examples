@@ -12,6 +12,13 @@ namespace TeamSiteProvisioningWeb.Helpers
 {
     public class SiteProvisioner
     {
+        private ContextFactory contextFactory;
+
+        public SiteProvisioner()
+        {
+            this.contextFactory = new ContextFactory();
+        }
+
         public void ProvisionSite(SiteDetails details)
         {
             Uri siteUri = new Uri(ConfigurationManager.AppSettings["SiteCollectionRequests_SiteUrl"]);
@@ -21,13 +28,17 @@ namespace TeamSiteProvisioningWeb.Helpers
             string accessToken = TokenHelper.GetAppOnlyAccessToken(
                 TokenHelper.SharePointPrincipal, siteUri.Authority, realm).AccessToken;
 
-            using (var context = TokenHelper.GetClientContextWithAccessToken(siteUri.ToString(), accessToken))
-            {
-                this.CreateSite(context, details);
-            }
+            // Create Site
+            var newSiteUri = this.CreateSite(details);
+            // Activate Site Publishing
+            // These only seems to work with FeatureDefinitionScope.None, rather than FeatureDefinitionScope.Site or FeatureDefinitionSite.Web
+            Guid publishingSiteGuid = new Guid("f6924d36-2fa8-4f0b-b16d-06b7250180fa");
+            Guid publishingWebGuid = new Guid("94c94ca6-b32f-4da9-a9e3-1f3d343d7ecb");
+            this.ActivateFeatureOnSite(newSiteUri.ToString(), publishingSiteGuid, FeatureDefinitionScope.None);
+            this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
         }
 
-        private void CreateSite(ClientContext context, SiteDetails siteDetails)
+        private string CreateSite(SiteDetails siteDetails)
         {
             string tenantStr = ConfigurationManager.AppSettings["SiteCollectionRequests_SiteUrl"];
             tenantStr = tenantStr.ToLower().Replace("-my", "").Substring(8);
@@ -41,9 +52,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             var authenticationManager = new AuthenticationManager();
 
             //using (var adminContext = TokenHelper.GetClientContextWithAccessToken(tenantAdminUri.ToString(), token))
-            var username = ConfigurationManager.AppSettings["SiteCollectionRequests_UserName"];
-            var password = ConfigurationManager.AppSettings["SiteCollectionRequests_Password"];
-            using (var adminContext = authenticationManager.GetSharePointOnlineAuthenticatedContextTenant(tenantAdminUri.ToString(), username, password))
+            using (var adminContext = this.contextFactory.GetContext(tenantAdminUri.ToString()))
             {
                 var tenant = new Tenant(adminContext);
                 var properties = new SiteCreationProperties()
@@ -67,6 +76,34 @@ namespace TeamSiteProvisioningWeb.Helpers
                     op.RefreshLoad();
                     adminContext.ExecuteQuery();
                 }
+            }
+
+            return webUrl.ToString();
+        }
+
+        private void ActivateFeatureOnSite(string webUrl, Guid featureId, FeatureDefinitionScope scope)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var features = context.Site.Features;
+                context.Load(features);
+                context.ExecuteQuery();
+
+                features.Add(featureId, true, scope);
+                context.ExecuteQuery();
+            }
+        }
+
+        private void ActivateFeatureOnWeb(string webUrl, Guid featureId, FeatureDefinitionScope scope)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var features = context.Web.Features;
+                context.Load(features);
+                context.ExecuteQuery();
+
+                features.Add(featureId, true, scope);
+                context.ExecuteQuery();
             }
         }
     }

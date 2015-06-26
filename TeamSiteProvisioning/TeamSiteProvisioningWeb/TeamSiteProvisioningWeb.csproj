@@ -191,6 +191,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ContextFactory.cs" />
     <Compile Include="Helpers\SiteProvisioner.cs" />
     <Compile Include="Models\SiteDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
