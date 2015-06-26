@@ -1,5 +1,6 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Publishing;
 using OfficeDevPnP.Core;
 using System;
 using System.Collections.Generic;
@@ -30,12 +31,16 @@ namespace TeamSiteProvisioningWeb.Helpers
 
             // Create Site
             var newSiteUri = this.CreateSite(details);
+            
             // Activate Site Publishing
             // These only seems to work with FeatureDefinitionScope.None, rather than FeatureDefinitionScope.Site or FeatureDefinitionSite.Web
             Guid publishingSiteGuid = new Guid("f6924d36-2fa8-4f0b-b16d-06b7250180fa");
             Guid publishingWebGuid = new Guid("94c94ca6-b32f-4da9-a9e3-1f3d343d7ecb");
             this.ActivateFeatureOnSite(newSiteUri.ToString(), publishingSiteGuid, FeatureDefinitionScope.None);
             this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
+
+            // Add Publishing Home Page
+            this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
         }
 
         private string CreateSite(SiteDetails siteDetails)
@@ -104,6 +109,51 @@ namespace TeamSiteProvisioningWeb.Helpers
 
                 features.Add(featureId, true, scope);
                 context.ExecuteQuery();
+            }
+        }
+
+        private void AddPublishingPage(string webUrl, string pageName)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var webSite = context.Web;
+                context.Load(webSite);
+
+                var publishingWeb = PublishingWeb.GetPublishingWeb(context, webSite);
+                context.Load(publishingWeb);
+
+                if (publishingWeb != null)
+                {
+                    var pages = context.Site.RootWeb.Lists.GetByTitle("Pages");
+                    var existingPages = pages.GetItems(CamlQuery.CreateAllItemsQuery());
+                    context.Load(existingPages, items => items.Include(item => item.DisplayName).Where(obj => obj.DisplayName == pageName));
+                    context.ExecuteQuery();
+
+                    // Check that page does not already exists
+                    if (existingPages == null || existingPages.Count == 0)
+                    {
+                        // Get Publishing Page Layouts
+                        var publishingLayouts = context.Site.RootWeb.Lists.GetByTitle("Master Page Gallery");
+                        var allItems = publishingLayouts.GetItems(CamlQuery.CreateAllItemsQuery());
+                        context.Load(allItems, items => items.Include(item => item.DisplayName).Where(obj => obj.DisplayName == "BlankWebPartPage"));
+                        context.ExecuteQuery();
+
+                        var layout = allItems.Where(x => x.DisplayName == "BlankWebPartPage").FirstOrDefault();
+                        context.Load(layout);
+
+                        // Create a publishing page
+                        PublishingPageInformation publishingPageInfo = new PublishingPageInformation();
+                        publishingPageInfo.Name = pageName;
+                        publishingPageInfo.PageLayoutListItem = layout;
+
+                        PublishingPage publishingPage = publishingWeb.AddPublishingPage(publishingPageInfo);
+                        publishingPage.ListItem.File.CheckIn(string.Empty, CheckinType.MajorCheckIn);
+                        publishingPage.ListItem.File.Publish(string.Empty);
+                        context.Load(publishingPage);
+                        context.Load(publishingPage.ListItem.File, obj => obj.ServerRelativeUrl);
+                        context.ExecuteQuery();
+                    }
+                }
             }
         }
     }
