@@ -40,7 +40,9 @@ namespace TeamSiteProvisioningWeb.Helpers
             this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
 
             // Add Publishing Home Page
-            this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
+            var newPageName = this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
+            // Make the page the home page
+            this.SetHomePage(newSiteUri, newPageName);
         }
 
         private string CreateSite(SiteDetails siteDetails)
@@ -112,7 +114,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             }
         }
 
-        private void AddPublishingPage(string webUrl, string pageName)
+        private string AddPublishingPage(string webUrl, string pageName)
         {
             using (var context = this.contextFactory.GetContext(webUrl))
             {
@@ -121,7 +123,7 @@ namespace TeamSiteProvisioningWeb.Helpers
 
                 var publishingWeb = PublishingWeb.GetPublishingWeb(context, webSite);
                 context.Load(publishingWeb);
-
+                
                 if (publishingWeb != null)
                 {
                     var pages = context.Site.RootWeb.Lists.GetByTitle("Pages");
@@ -154,6 +156,22 @@ namespace TeamSiteProvisioningWeb.Helpers
                         context.ExecuteQuery();
                     }
                 }
+            }
+
+            return pageName;
+        }
+
+        public void SetHomePage(string webUrl, string pageName)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var webSite = context.Site;
+                context.Load(webSite);
+                context.ExecuteQuery();
+
+                webSite.RootWeb.RootFolder.WelcomePage = "Pages/" + pageName;
+                webSite.RootWeb.RootFolder.Update();
+                context.ExecuteQuery();
             }
         }
     }
