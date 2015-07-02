@@ -43,6 +43,10 @@ namespace TeamSiteProvisioningWeb.Helpers
             var newPageName = this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
             // Make the page the home page
             this.SetHomePage(newSiteUri, newPageName);
+            // Create Metadata List
+            var newListTitle = this.CreateMetaDataList(newSiteUri);
+            // Add MetaData item
+            this.AddMetaData(newSiteUri, newListTitle);
         }
 
         private string CreateSite(SiteDetails siteDetails)
@@ -161,7 +165,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             return pageName;
         }
 
-        public void SetHomePage(string webUrl, string pageName)
+        private void SetHomePage(string webUrl, string pageName)
         {
             using (var context = this.contextFactory.GetContext(webUrl))
             {
@@ -171,6 +175,64 @@ namespace TeamSiteProvisioningWeb.Helpers
 
                 webSite.RootWeb.RootFolder.WelcomePage = "Pages/" + pageName;
                 webSite.RootWeb.RootFolder.Update();
+                context.ExecuteQuery();
+            }
+        }
+
+        private string CreateMetaDataList(string webUrl)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                // Create List
+                var listTitle = "Site Metadata";
+                var webSite = context.Web;
+
+                var listCreationInformation = new ListCreationInformation();
+                listCreationInformation.Title = listTitle;
+                listCreationInformation.TemplateType = (int)ListTemplateType.Announcements; // This does not need to be an announcements template
+
+                var list = webSite.Lists.Add(listCreationInformation);
+
+                context.ExecuteQuery();
+
+                // Set content type - this content type needs to already exist - this one has been created as a custom content type on SharePoint Online's Content Type Hub (/sites/contentTypeHub)
+                var contentType = context.Web.ContentTypes.GetById("0x0100B190AA81CFE7C34992F8872353FA9888");
+                list.ContentTypes.AddExistingContentType(contentType);
+                context.ExecuteQuery();
+
+                // Set new content type as default
+                var currentCTOrder = list.ContentTypes;
+                context.Load(currentCTOrder);
+                context.ExecuteQuery();
+                var order = new List<ContentTypeId>();
+                foreach (var ct in currentCTOrder)
+                {
+                    if (ct.Name.ToLower().Equals("Site Collection MetaData".ToLower()))
+                    {
+                        order.Add(ct.Id);
+                    }
+                }
+                list.RootFolder.UniqueContentTypeOrder = order;
+                list.RootFolder.Update();
+                list.Update();
+                context.ExecuteQuery();
+
+                return listTitle;
+            }
+        }
+
+        private void AddMetaData(string webUrl, string listTitle)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var list = context.Web.Lists.GetByTitle(listTitle);
+
+                var listItemInfo = new ListItemCreationInformation();
+                var listItem = list.AddItem(listItemInfo);
+                listItem["Title"] = "Metadata";
+                listItem["Site Category"] = "Project";
+                listItem.Update();
+
                 context.ExecuteQuery();
             }
         }

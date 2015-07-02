@@ -29,5 +29,27 @@ namespace TeamSiteProvisioningWeb.Controllers
 
             return Redirect("/");
         }
+
+        [HttpGet]
+        public ActionResult Search()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Search(string searchTerm)
+        {
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var search = new SiteSearch();
+                var results = search.Search(searchTerm);
+                foreach (var item in results)
+                {
+                    System.Console.WriteLine(item);
+                }
+            }
+
+            return Redirect("/Home/Search");
+        }
     }
 }

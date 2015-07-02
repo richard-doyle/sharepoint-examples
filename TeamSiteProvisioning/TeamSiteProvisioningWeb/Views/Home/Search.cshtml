@@ -1,0 +1,17 @@
+﻿@model TeamSiteProvisioningWeb.Models.SiteSearcher
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+@using (Html.BeginForm())
+{
+    <fieldset>
+        @Html.TextBoxFor(m => m.SearchTerm)
+
+        <input type="submit" value="Search" />
+    </fieldset>
+}
+
+
