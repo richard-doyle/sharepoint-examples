@@ -26,7 +26,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             using (var context = this.contextFactory.GetContext(siteUri.ToString()))
             {
                 var keywordQuery = new KeywordQuery(context);
-                keywordQuery.QueryText = "ContentType=\"Site Collection Metadata\"";
+                keywordQuery.QueryText = "HiddenSite AND ContentType=\"Site Collection Metadata\"";
                 keywordQuery.TrimDuplicates = false;
                 var searchExecutor = new SearchExecutor(context);
                 var results = searchExecutor.ExecuteQuery(keywordQuery);
@@ -34,34 +34,12 @@ namespace TeamSiteProvisioningWeb.Helpers
 
                 var result = results.Value[0];
                 foreach (var res in result.ResultRows) {
-                    var id = res["UniqueId"];
                     var siteTitle = res["SiteName"];
-                    if (this.IsProjectSite(Guid.Parse(id.ToString()), siteTitle.ToString(), "Site Metadata"))
-                    {
-                        resultsList.Add(siteTitle.ToString());
-                    }
+                    resultsList.Add(siteTitle.ToString());
                 }
             }
 
             return resultsList;
-        }
-
-        private bool IsProjectSite(Guid itemId, string siteUri, string listTitle)
-        {
-            using (var context = this.contextFactory.GetContext(siteUri))
-            {
-                var site = context.Web;
-                var list = site.Lists.GetByTitle(listTitle);
-
-                var query = new CamlQuery();
-                query.ViewXml = string.Format("<View><Query><Where><Eq><FieldRef Name='UniqueId'/><Value Type='Guid'>{0}</Value></Contains></Where></Query></View>", itemId);
-                var collListItem = list.GetItems(query);
-
-                context.Load(collListItem);
-                context.ExecuteQuery();
-
-                return collListItem[0].FieldValues["Site_x0020_Category"].ToString() == "Project";
-            }
         }
     }
 }
