@@ -26,8 +26,12 @@ namespace TeamSiteProvisioningWeb.Helpers
             using (var context = this.contextFactory.GetContext(siteUri.ToString()))
             {
                 var keywordQuery = new KeywordQuery(context);
-                keywordQuery.QueryText = "HiddenSite AND ContentType=\"Site Collection Metadata\"";
+                keywordQuery.QueryText = "Project AND HiddenSite AND ContentType=\"Site Collection Metadata\"";
                 keywordQuery.TrimDuplicates = false;
+                keywordQuery.SelectProperties.Clear();
+                keywordQuery.SelectProperties.Add("SiteNumFollowers");
+                keywordQuery.SelectProperties.Add("SiteTitle");
+                keywordQuery.SelectProperties.Add("SiteMembers");
                 var searchExecutor = new SearchExecutor(context);
                 var results = searchExecutor.ExecuteQuery(keywordQuery);
                 context.ExecuteQuery();

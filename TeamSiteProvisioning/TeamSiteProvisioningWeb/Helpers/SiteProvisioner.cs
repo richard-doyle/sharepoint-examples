@@ -36,13 +36,13 @@ namespace TeamSiteProvisioningWeb.Helpers
             // These only seems to work with FeatureDefinitionScope.None, rather than FeatureDefinitionScope.Site or FeatureDefinitionSite.Web
             Guid publishingSiteGuid = new Guid("f6924d36-2fa8-4f0b-b16d-06b7250180fa");
             Guid publishingWebGuid = new Guid("94c94ca6-b32f-4da9-a9e3-1f3d343d7ecb");
-            this.ActivateFeatureOnSite(newSiteUri.ToString(), publishingSiteGuid, FeatureDefinitionScope.None);
-            this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
+            //this.ActivateFeatureOnSite(newSiteUri.ToString(), publishingSiteGuid, FeatureDefinitionScope.None);
+            //this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
 
             // Add Publishing Home Page
-            var newPageName = this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
+            //var newPageName = this.AddPublishingPage(newSiteUri.ToString(), "Home.aspx");
             // Make the page the home page
-            this.SetHomePage(newSiteUri, newPageName);
+            //this.SetHomePage(newSiteUri, newPageName);
             // Create Metadata List
             var newListTitle = this.CreateMetaDataList(newSiteUri);
             // Add MetaData item
