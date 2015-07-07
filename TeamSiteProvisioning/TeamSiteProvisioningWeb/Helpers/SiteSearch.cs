@@ -20,14 +20,54 @@ namespace TeamSiteProvisioningWeb.Helpers
 
         public List<string> Search(string searchTerm)
         {
-            var username = ConfigurationManager.AppSettings["SiteCollectionRequests_UserName"];
-            this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
-            return this.GetMemberSites();
+            //var username = ConfigurationManager.AppSettings["SiteCollectionRequests_UserName"];
+            //this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
+            //return this.GetMemberSites();
+
+            return this.GetSiteMembers();
         }
 
         private List<string> GetMemberSites()
         {
+            var siteUri = new Uri(ConfigurationManager.AppSettings["SiteCollectionRequests_SiteUrl"]);
+
+            using (var context = this.contextFactory.GetContext(siteUri.ToString()))
+            {
+                var keywordQuery = new KeywordQuery(context);
+                keywordQuery.QueryText = "rdoyle AND SiteGroup:\"Team\"";
+                keywordQuery.TrimDuplicates = false;
+                var searchExecutor = new SearchExecutor(context);
+                var results = searchExecutor.ExecuteQuery(keywordQuery);
+                context.ExecuteQuery();
+            }
+
             return new List<string>();
+        }
+
+        private List<string> GetSiteMembers()
+        {
+            var siteUri = "https://rdoyle.sharepoint.com/";
+            var users = new List<string>();
+
+            using (var context = this.contextFactory.GetContext(siteUri.ToString()))
+            {
+                var groups = context.Web.SiteGroups;
+                context.Load(groups);
+                context.ExecuteQuery();
+
+                foreach (var group in groups)
+                {
+                    if (group.Title == "Team Site Members")
+                    {
+                        var gUsers = group.Users;
+                        context.Load(gUsers);
+                        context.ExecuteQuery();
+                        users = gUsers.Select(u => u.Email).ToList();
+                    }
+                }
+            }
+
+            return users;
         }
 
         private bool UserIsMemberOfSite(string siteUri, string groupName, string userName)
