@@ -51,5 +51,13 @@ namespace TeamSiteProvisioningWeb.Controllers
 
             return Redirect("/Home/Search");
         }
+
+        public ActionResult Details()
+        {
+            var siteInformationRetriever = new SiteInformationRetriever();
+            var siteInfo = siteInformationRetriever.GetInfo();
+
+            return View(siteInfo);
+        }
     }
 }

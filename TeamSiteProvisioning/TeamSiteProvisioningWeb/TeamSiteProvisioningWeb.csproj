@@ -192,9 +192,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ContextFactory.cs" />
+    <Compile Include="Helpers\SiteInformationRetriever.cs" />
     <Compile Include="Helpers\SiteProvisioner.cs" />
     <Compile Include="Helpers\SiteSearch.cs" />
     <Compile Include="Models\SiteDetails.cs" />
+    <Compile Include="Models\SiteInformation.cs" />
     <Compile Include="Models\SiteSearcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharePointContext.cs" />
@@ -231,6 +233,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Home\Search.cshtml" />
+    <Content Include="Views\Home\Details.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
