@@ -20,6 +20,28 @@ namespace TeamSiteProvisioningWeb.Helpers
 
         public List<string> Search(string searchTerm)
         {
+            var username = ConfigurationManager.AppSettings["SiteCollectionRequests_UserName"];
+            this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
+            return this.GetMemberSites();
+        }
+
+        private List<string> GetMemberSites()
+        {
+            return new List<string>();
+        }
+
+        private bool UserIsMemberOfSite(string siteUri, string groupName, string userName)
+        {
+            using (var context = this.contextFactory.GetContext(siteUri.ToString()))
+            {
+                var member = context.Web.IsUserInGroup(groupName, userName);
+            }
+
+            return false;
+        }
+
+        private List<string> GetHiddenProjectSites()
+        {
             var siteUri = new Uri(ConfigurationManager.AppSettings["SiteCollectionRequests_SiteUrl"]);
             var resultsList = new List<string>();
 
@@ -37,7 +59,8 @@ namespace TeamSiteProvisioningWeb.Helpers
                 context.ExecuteQuery();
 
                 var result = results.Value[0];
-                foreach (var res in result.ResultRows) {
+                foreach (var res in result.ResultRows)
+                {
                     var siteTitle = res["SiteName"];
                     resultsList.Add(siteTitle.ToString());
                 }

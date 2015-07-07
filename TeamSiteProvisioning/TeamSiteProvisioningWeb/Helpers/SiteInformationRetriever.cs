@@ -21,10 +21,18 @@ namespace TeamSiteProvisioningWeb.Helpers
         public SiteInformation GetInfo()
         {
             var siteUri = "https://rdoyle.sharepoint.com/sites/test01";
+            var numDocs = this.GetNumberOfDocumentsInSiteCollection(siteUri);
 
+            return new SiteInformation
+            {
+                NumberOfDocuments = numDocs
+            };
+        }
+        
+        private int GetNumberOfDocumentsInSiteCollection(string siteUri)
+        {
             using (var ctx = this.contextFactory.GetContext(siteUri))
             {
-                var numDocs = 0;
                 var results = new Dictionary<string, IEnumerable<File>>();
                 var lists = ctx.LoadQuery(ctx.Web.Lists.Where(l => l.BaseType == BaseType.DocumentLibrary));
                 ctx.ExecuteQuery();
@@ -41,14 +49,11 @@ namespace TeamSiteProvisioningWeb.Helpers
                     // Filter by just the documents list
                     if (result.Key.ToString() == "Documents")
                     {
-                        numDocs = result.Value.Count();
+                        return result.Value.Count();
                     }
-                }   
+                }
 
-                return new SiteInformation
-                {
-                    NumberOfDocuments = numDocs
-                };
+                return 0;
             }
         }
 
