@@ -34,8 +34,8 @@ namespace TeamSiteProvisioningWeb.Helpers
             
             // Activate Site Publishing
             // These only seems to work with FeatureDefinitionScope.None, rather than FeatureDefinitionScope.Site or FeatureDefinitionSite.Web
-            Guid publishingSiteGuid = new Guid("f6924d36-2fa8-4f0b-b16d-06b7250180fa");
-            Guid publishingWebGuid = new Guid("94c94ca6-b32f-4da9-a9e3-1f3d343d7ecb");
+            //Guid publishingSiteGuid = new Guid("f6924d36-2fa8-4f0b-b16d-06b7250180fa");
+            //Guid publishingWebGuid = new Guid("94c94ca6-b32f-4da9-a9e3-1f3d343d7ecb");
             //this.ActivateFeatureOnSite(newSiteUri.ToString(), publishingSiteGuid, FeatureDefinitionScope.None);
             //this.ActivateFeatureOnWeb(newSiteUri.ToString(), publishingWebGuid, FeatureDefinitionScope.None);
 
@@ -44,9 +44,9 @@ namespace TeamSiteProvisioningWeb.Helpers
             // Make the page the home page
             //this.SetHomePage(newSiteUri, newPageName);
             // Create Metadata List
-            var newListTitle = this.CreateMetaDataList(newSiteUri);
+            //var newListTitle = this.CreateMetaDataList(newSiteUri);
             // Add MetaData item
-            this.AddMetaData(newSiteUri, newListTitle);
+            //this.AddMetaData(newSiteUri, newListTitle);
         }
 
         private string CreateSite(SiteDetails siteDetails)

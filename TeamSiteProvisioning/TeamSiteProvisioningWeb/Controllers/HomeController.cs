@@ -59,5 +59,12 @@ namespace TeamSiteProvisioningWeb.Controllers
 
             return View(siteInfo);
         }
+
+        public ActionResult EmbedScript()
+        {
+            var scriptEmbedder = new ScriptEmbedder();
+            scriptEmbedder.Embed();
+            return View();
+        }
     }
 }
