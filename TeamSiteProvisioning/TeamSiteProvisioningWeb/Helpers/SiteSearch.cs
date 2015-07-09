@@ -24,7 +24,52 @@ namespace TeamSiteProvisioningWeb.Helpers
             //this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
             //return this.GetMemberSites();
 
-            return this.GetSiteMembers();
+            return this.GetSiteEvents();
+        }
+
+        private List<string> GetSiteEvents()
+        {
+            var siteUri = "https://rdoyle.sharepoint.com/sites/test01";
+            var events = new List<string>();
+
+            using (var context = this.contextFactory.GetContext(siteUri.ToString()))
+            {
+                var lists = context.LoadQuery(context.Web.Lists.Where(l => l.Title == "events"));
+                context.ExecuteQuery();
+                foreach (var list in lists)
+                {
+                    var qry = CamlQuery.CreateAllItemsQuery();
+                    var items = list.GetItems(qry);
+                    context.Load(items);
+                    context.Load(items, icol => icol.Include(i => i.DisplayName));
+                    context.ExecuteQuery();
+                    events.AddRange(items.Select(i => i.DisplayName));
+                }
+
+                return events;
+            }
+        }
+
+        private List<string> GetSiteTasks()
+        {
+            var siteUri = "https://rdoyle.sharepoint.com/sites/test01";
+            var tasks = new List<string>();
+
+            using (var context = this.contextFactory.GetContext(siteUri.ToString()))
+            {
+                var lists = context.LoadQuery(context.Web.Lists.Where(l => l.Title == "tasks"));
+                context.ExecuteQuery();
+                foreach (var list in lists)
+                {
+                    var qry = CamlQuery.CreateAllItemsQuery();
+                    var items = list.GetItems(qry);
+                    context.Load(items, icol => icol.Include(i => i.DisplayName));
+                    context.ExecuteQuery();
+                    tasks.AddRange(items.Select(i => i.DisplayName));
+                }
+
+                return tasks;
+            }
         }
 
         private List<string> GetMemberSites()
@@ -68,6 +113,42 @@ namespace TeamSiteProvisioningWeb.Helpers
             }
 
             return users;
+        }
+
+        private List<string> GetSiteDocuments()
+        {
+            var siteUri = "https://rdoyle.sharepoint.com/";
+            var docs = new List<string>();
+
+            using (var context = this.contextFactory.GetContext(siteUri))
+            {
+                var results = new Dictionary<string, IEnumerable<File>>();
+                var lists = context.LoadQuery(context.Web.Lists.Where(l => l.BaseType == BaseType.DocumentLibrary));
+                context.ExecuteQuery();
+                foreach (var list in lists)
+                {
+                    var qry = new CamlQuery();
+                    qry.ViewXml = "<View Scope=\"RecursiveAll\"><Query><Where><Eq><FieldRef Name=\"FSObjType\" /><Value Type=\"Integer\">0</Value></Eq></Where></Query></View>";
+                    var items = list.GetItems(qry);
+                    context.Load(items, icol => icol.Include(i => i.File));
+                    results[list.Title] = items.Select(i => i.File);
+                }
+                context.ExecuteQuery();
+
+                foreach (var result in results)
+                {
+                    // Filter by just the documents list
+                    if (result.Key.ToString() == "Documents")
+                    {
+                        foreach (var doc in result.Value)
+                        {
+                            docs.Add(doc.Name);
+                        }
+                    }
+                }
+            }
+
+            return docs;
         }
 
         private bool UserIsMemberOfSite(string siteUri, string groupName, string userName)
