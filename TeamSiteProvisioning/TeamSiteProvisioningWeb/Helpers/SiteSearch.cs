@@ -24,7 +24,43 @@ namespace TeamSiteProvisioningWeb.Helpers
             //this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
             //return this.GetMemberSites();
 
-            return this.GetSiteEvents();
+            return this.GetSiteCollectionsInPath("teams");
+        }
+
+        private List<string> GetSiteCollectionsInPath(string path)
+        {
+            var siteUri = "https://rdoyle-admin.sharepoint.com/";
+            var baseUri = "https://rdoyle.sharepoint.com/";
+
+            var results = new List<string>();
+
+            using (var context = this.contextFactory.GetContext(siteUri))
+            {
+
+                var tenant = new Tenant(context);
+                var spp = tenant.GetSiteProperties(0, true);
+
+                context.Load(spp);
+                context.ExecuteQuery();
+
+                foreach (var site in spp)
+                {
+                    var uri = site.Url.ToString();
+                    if (!uri.StartsWith(baseUri))
+                    {
+                        continue;
+                    }
+
+                    uri = uri.Remove(0, baseUri.Length);
+                    var uriParts = uri.Split('/').ToArray();
+                    if (uriParts.Any() && uriParts[0] == path)
+                    {
+                        results.Add(site.Url.ToString());
+                    }
+                }
+            }
+
+            return results;
         }
 
         private List<string> GetSiteEvents()

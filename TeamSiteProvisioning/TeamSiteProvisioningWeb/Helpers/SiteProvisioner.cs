@@ -55,7 +55,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             tenantStr = tenantStr.ToLower().Replace("-my", "").Substring(8);
             tenantStr = tenantStr.Substring(0, tenantStr.IndexOf("."));
 
-            var webUrl = String.Format("https://{0}.sharepoint.com/{1}/{2}", tenantStr, "sites", siteDetails.Title);
+            var webUrl = String.Format("https://{0}.sharepoint.com/{1}/{2}", tenantStr, "community", siteDetails.Title);
             var tenantAdminUri = new Uri(String.Format("https://{0}-admin.sharepoint.com", tenantStr));
             string realm = TokenHelper.GetRealmFromTargetUrl(tenantAdminUri);
             var token = TokenHelper.GetAppOnlyAccessToken(TokenHelper.SharePointPrincipal, tenantAdminUri.Authority, realm).AccessToken;
