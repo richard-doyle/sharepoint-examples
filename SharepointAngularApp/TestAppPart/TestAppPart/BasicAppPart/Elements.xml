@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+  <ClientWebPart Name="BasicAppPart" Title="Basic app part" Description="A basic app part" DefaultWidth="300" DefaultHeight="200">
+
+    <!-- Content element identifies the location of the page that will render inside the client web part
+         Properties are referenced on the query string using the pattern _propertyName_
+         Example: Src="~appWebUrl/Pages/ClientWebPart1.aspx?Property1=_property1_" -->
+    <Content Type="html" Src="~remoteAppUrl/AppPartContent.aspx?{StandardTokens}&amp;strProp=_strProp_&amp;intProp=_intProp_&amp;boolProp=_boolProp_&amp;enumProp=_enumProp_" />
+
+    <!-- Define properties in the Properties element.
+         Remember to put Property Name on the Src attribute of the Content element above. -->
+    <Properties>
+      <Property Name="strProp" Type="string" RequiresDesignerPermission="true" DefaultValue="String default value" WebDisplayName="A property of type string" WebCategory="Basic app part category" />
+      <Property Name="intProp" Type="int" RequiresDesignerPermission="true" DefaultValue="0" WebDisplayName="A property of type integer" WebCategory="Basic app part category" />
+      <Property Name="boolProp" Type="boolean" RequiresDesignerPermission="true" DefaultValue="false" WebDisplayName="A property of type boolean" WebCategory="Basic app part category" />
+      <Property Name="enumProp" Type="enum" RequiresDesignerPermission="true" DefaultValue="1st" WebDisplayName="A property of type enumeration" WebCategory="Basic app part category">
+        <EnumItems>
+          <EnumItem Value="1st" WebDisplayName="First option" />
+          <EnumItem Value="2nd" WebDisplayName="Second Option" />
+          <EnumItem Value="3rd" WebDisplayName="Third Option" />
+        </EnumItems>
+      </Property>
+    </Properties>
+
+  </ClientWebPart>
+</Elements>
