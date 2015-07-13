@@ -1,6 +1,7 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Query;
+using Microsoft.SharePoint.Client.UserProfiles;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -24,7 +25,28 @@ namespace TeamSiteProvisioningWeb.Helpers
             //this.UserIsMemberOfSite("https://rdoyle.sharepoint.com/sites/test01", "test01 members", username);
             //return this.GetMemberSites();
 
-            return this.GetSiteCollectionsInPath("teams");
+            var result = this.GetCurrentUserInformation();
+            return null;
+        }
+
+        private string GetCurrentUserInformation()
+        {
+            var siteUri = "https://rdoyle.sharepoint.com";
+
+            using (var context = this.contextFactory.GetContext(siteUri))
+            {
+                var user = context.Web.CurrentUser;
+                context.Load(user, u => u.LoginName);
+                context.ExecuteQuery();
+
+                var peopleManager = new PeopleManager(context);
+                var personProperties = peopleManager.GetPropertiesFor(user.LoginName);
+
+                context.Load(personProperties, p => p.PictureUrl);
+                context.ExecuteQuery();
+
+                return personProperties.PictureUrl;
+            }
         }
 
         private List<string> GetSiteCollectionsInPath(string path)
