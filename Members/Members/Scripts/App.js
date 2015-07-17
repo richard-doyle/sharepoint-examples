@@ -4,6 +4,7 @@ var context = SP.ClientContext.get_current();
 var groups = context.get_web().get_siteGroups();
 var membersGroup = groups.getByName("developer Members");
 var members = membersGroup.get_users();
+var personProperties = null;
 
 // This code runs when the DOM is ready and creates a context object which is needed to use the SharePoint object model
 $(document).ready(function () {
@@ -29,10 +30,22 @@ function onGetMembersSuccess() {
             '<br/>ID: ' + oUser.get_id() +
             '<br/>Email: ' + oUser.get_email() +
             '<br/>Login Name: ' + oUser.get_loginName();
+
+        var peopleManager = new SP.UserProfiles.PeopleManager(context);
+        personProperties = peopleManager.getPropertiesFor(oUser.get_loginName());
+        console.log(personProperties);
+        context.load(personProperties);
+        context.executeQueryAsync(onRequestSuccess, onGetMembersFail);
     }
 
     var messageElem = document.getElementById("message");
     message.innerHTML = userInfo;
+}
+
+function onRequestSuccess() {
+    var pictureUrl = personProperties.get_userProfileProperties().PictureURL;
+    console.log(pictureUrl);
+    $('#profile-image').attr('src', pictureUrl);
 }
 
 // This function is executed if the above call fails

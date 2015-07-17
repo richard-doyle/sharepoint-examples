@@ -12,6 +12,7 @@
     <script type="text/javascript" src="../Scripts/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/_layouts/15/MicrosoftAjax.js"></script>
     <script type="text/javascript" src="/_layouts/15/sp.runtime.js"></script>
+    <script type="text/javascript" src="/_layouts/15/sp.userprofiles.js"></script>
     <script type="text/javascript" src="/_layouts/15/sp.js"></script>
     <script type="text/javascript" src="../Scripts/App.js"></script>
 
@@ -46,6 +47,7 @@
         <p id="message">
             initializing...
         </p>
+        <img src="" id="profile-image" />
     </div>
 </body>
 </html>
