@@ -66,5 +66,12 @@ namespace TeamSiteProvisioningWeb.Controllers
             scriptEmbedder.Embed();
             return View();
         }
+
+        public ActionResult AddAppPart()
+        {
+            var appPartAdder = new AppPartAdder();
+            appPartAdder.AddAppPart();
+            return View();
+        }
     }
 }

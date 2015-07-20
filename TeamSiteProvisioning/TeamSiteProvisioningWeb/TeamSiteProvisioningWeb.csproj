@@ -191,6 +191,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AppPartAdder.cs" />
     <Compile Include="Helpers\ContextFactory.cs" />
     <Compile Include="Helpers\ScriptEmbedder.cs" />
     <Compile Include="Helpers\SiteInformationRetriever.cs" />
@@ -211,6 +212,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Resources\a.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
@@ -237,6 +239,7 @@
     <Content Include="Views\Home\Search.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
     <Content Include="Views\Home\EmbedScript.cshtml" />
+    <Content Include="Views\Home\AddAppPart.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

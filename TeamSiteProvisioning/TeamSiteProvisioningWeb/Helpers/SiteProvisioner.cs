@@ -47,6 +47,35 @@ namespace TeamSiteProvisioningWeb.Helpers
             //var newListTitle = this.CreateMetaDataList(newSiteUri);
             // Add MetaData item
             //this.AddMetaData(newSiteUri, newListTitle);
+            // Set Site Logo
+            this.SetSiteLogo(newSiteUri);
+        }
+
+        private void SetSiteLogo(string webUrl)
+        {
+            using (var context = this.contextFactory.GetContext(webUrl))
+            {
+                var web = context.Web;
+                context.Load(web);
+                context.ExecuteQuery();
+
+                var assetLibrary = web.Lists.GetByTitle("Site Assets");
+                context.Load(assetLibrary, l => l.RootFolder);
+
+                var logoFile = System.Web.Hosting.HostingEnvironment.MapPath(string.Format("~/{0}", "resources/a.png"));
+
+                var newFile = new FileCreationInformation();
+                newFile.Content = System.IO.File.ReadAllBytes(logoFile);
+                newFile.Url = "a.png";
+                newFile.Overwrite = true;
+                var uploadFile = assetLibrary.RootFolder.Files.Add(newFile);
+                context.Load(uploadFile);
+                context.ExecuteQuery();
+
+                web.SiteLogoUrl = web.ServerRelativeUrl + "/SiteAssets/a.png";
+                web.Update();
+                context.ExecuteQuery();
+            }
         }
 
         private string CreateSite(SiteDetails siteDetails)
@@ -55,7 +84,7 @@ namespace TeamSiteProvisioningWeb.Helpers
             tenantStr = tenantStr.ToLower().Replace("-my", "").Substring(8);
             tenantStr = tenantStr.Substring(0, tenantStr.IndexOf("."));
 
-            var webUrl = String.Format("https://{0}.sharepoint.com/{1}/{2}", tenantStr, "community", siteDetails.Title);
+            var webUrl = String.Format("https://{0}.sharepoint.com/{1}/{2}", tenantStr, "sites", siteDetails.Title);
             var tenantAdminUri = new Uri(String.Format("https://{0}-admin.sharepoint.com", tenantStr));
             string realm = TokenHelper.GetRealmFromTargetUrl(tenantAdminUri);
             var token = TokenHelper.GetAppOnlyAccessToken(TokenHelper.SharePointPrincipal, tenantAdminUri.Authority, realm).AccessToken;
